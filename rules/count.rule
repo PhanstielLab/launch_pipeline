@@ -1,0 +1,15 @@
+rule count:
+	input:
+		bai = expand('sort/{sample}.bai', sample=samples.index), # necessary to ensure indexing is run
+		bam = expand('sort/{sample}.bam', sample=samples.index)
+	output:
+		'counts.txt'
+	params:
+		gtf = config['gtf'],
+		t = config['params']['count']['t'],
+		g = config['params']['count']['g'],
+		p = config['params']['count']['p'],
+		s = config['params']['count']['s']
+	threads: 8
+	shell:
+		'featureCounts -a {params.gtf} -o {output} -T {threads} -t {params.t} -g {params.g} {params.p} -s {params.s} {input.bam}'

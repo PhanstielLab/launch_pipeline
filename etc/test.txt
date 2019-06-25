@@ -1,0 +1,9 @@
+sample	time	condition	rep	cell
+s1	0	control	1	HEK293
+s2	10	control	1	HEK293
+s3	0	treat	1	HEK293
+s4	10	treat	1	HEK293
+s5	0	control	2	HEK293
+s6	10	control	2	HEK293
+s7	0	control	3	HEK293
+s8	10	control	3	HEK293

@@ -1,0 +1,30 @@
+#!/bin/bash
+## Place this script in $HOME/.config/ for tab-completion to work on the cluster
+
+## Completion script
+_launch_completions(){
+
+	# List pipeline options
+	if [ "${COMP_CWORD}" -lt "2" ]; then
+
+		COMPREPLY=($(compgen -W "rnaseq chipseq bcl2fastq juicer subsample" "${COMP_WORDS[1]}"))
+
+	fi
+
+	# List samplesheet.txt file options
+	if [ "${COMP_CWORD}" -eq "2" ]; then
+
+		COMPREPLY=($(compgen -f "${COMP_WORDS[2]}"))
+
+	fi
+
+	# Prevent additional completition options
+	if [ "${#COMP_WORDS[@]}" -gt "3" ]; then
+
+		return
+
+	fi
+	
+}
+
+complete -F _launch_completions launch

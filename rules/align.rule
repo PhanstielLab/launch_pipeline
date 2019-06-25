@@ -1,0 +1,16 @@
+rule align:
+	input:
+		in1 = 'trim/{sample}_R1.fastq',
+		in2 = 'trim/{sample}_R2.fastq'
+	output:
+		'align/{sample}.bam'
+	params:
+		path = config['params']['align']['path'],
+		maxindel = config['params']['align']['maxindel'],
+		intronlen = config['params']['align']['intronlen'],
+		ambig = config['params']['align']['ambig'],
+		trd = config['params']['align']['trd']
+	threads: 8
+	shell:
+		'bbmap.sh threads={threads} -Xmx30g in1={input.in1} in2={input.in2} out={output} '
+		'path={params.path} maxindel={params.maxindel} intronlen={params.intronlen} ambig={params.ambig} trd={params.trd}'

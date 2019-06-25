@@ -1,0 +1,134 @@
+#!/bin/bash
+
+## Define usage function
+general_usage(){
+	echo -e '\e[32mlaunch <pipeline> <samplesheet.txt> [options]\e[0m'
+}
+
+## Get parent path for linking files
+parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
+
+## Load global modules
+module load python/3.6.6
+
+# Select pipeline
+case $1 in 
+
+	rnaseq)
+		
+		## Load pipeline-specific modules
+		module load bbmap
+		module load subread
+
+		## Copy appropriate snakemake, config, and cluster files
+		cp "${parent_path}/snakefiles/rnaseq.snakefile" "${PWD}/Snakefile"
+		cp "${parent_path}/config/config.yaml" "${PWD}/config.yaml"
+		cp "${parent_path}/config/cluster.yaml" "${PWD}/cluster.yaml"
+		rsync -az --ignore-errors "${2}" "${PWD}/$(basename ${2})" #suppress error if file already exists in directory
+
+		## Replace sample sheet in config file (come up with better/python parser to handle additional options)
+		sed -i 's|^\(\s*samples\s*:\s*\).*|\1'"${2}"'|' config.yaml
+
+		## Generate DAG
+		snakemake --dag | dot -Tpdf > dag.pdf
+
+		## Launch Cluster Command
+		snakemake -j 999 -s Snakefile --configfile config.yaml --latency-wait 500 -d "${PWD}" --cluster-config cluster.yaml --cluster "sbatch -p {cluster.partition} -n {cluster.tasks} -N {cluster.nodes} --mem={cluster.mem} -t {cluster.time} --output {cluster.output}"
+
+		echo 'rnaseq snakemake running in background via nohub -- check nohub.out for progress (tail -f nohup.out)'
+
+		;;
+
+	chipseq)
+		
+		## Load pipeline-specific modules
+		# module load fastqc/0.11.5
+		# module load trim_galore/0.4.3
+		# module load bwa/0.7.17
+		# module load samtools/1.8
+		# module load java/10.0.2
+		# module load bedtools/2.26
+		# module load macs/2016-02-15
+
+		## Copy appropriate snakemake, config, and cluster files
+		cp "${parent_path}/snakefiles/chipseq.snakefile" "${PWD}/Snakefile"
+		cp "${parent_path}/config/config.yaml" "${PWD}/config.yaml"
+		cp "${parent_path}/config/cluster.yaml" "${PWD}/cluster.yaml"
+		rsync -az --ignore-errors "${2}" "${PWD}/$(basename ${2})" #suppress error if file already exists in directory
+
+		## Replace sample sheet in config file (come up with better/python parser to handle additional options)
+		sed -i 's|^\(\s*samples\s*:\s*\).*|\1'"${2}"'|' config.yaml
+
+		# snakemake -s Snakefile --configfile config.yaml --latency-wait 60
+		nohup snakemake -j 999 -s Snakefile --configfile config.yaml --latency-wait 500 -d "${PWD}" --cluster-config cluster.yaml --cluster "sbatch -p {cluster.partition} -n {cluster.tasks} -N {cluster.nodes} --mem={cluster.mem} -t {cluster.time} --output {cluster.output}" &
+
+		echo -e '\e[32mrnaseq snakemake running in background via nohub -- check nohub.out for progress (tail -f nohup.out)\e[0m'
+		;;
+
+	bcl2fastq)
+		
+		echo 'option coming soon'
+		;;
+
+	juicer)
+		
+		case $2 in
+
+			'-h' | '--help' | ' ' | '')
+				echo -e '\e[31mProvide a fastq file list to submit to juicer (ls /full/path/to/*.fastq > fastqs.txt)\e[0m'
+				exit 2
+				;;
+		esac
+		
+		## Link juicer wrapper
+		ln -s "${parent_path}/scripts/run_juicer.sh" "${PWD}/run_juicer.sh"
+
+		## Launch juicer wrapper
+		./run_juicer.sh $2
+
+		## Unlink juicer wrapper
+		unlink run_juicer.sh
+
+		;;
+
+	subsample)
+		
+		## Print help messages for additional options
+		case $2 in
+
+			'-h' | '--help' | ' ' | '')
+				echo -e '\e[31mProvide a fastq file list to subsample (ls path/to/*.fastq > files.txt)\e[0m'
+				exit 2
+				;;
+		esac
+
+		case $3 in
+
+			'-h' | '--help' | ' ' | '')
+				echo -e '\e[31mSpecify how many reads as a number or fraction (eg. 10000 or 0.001)\e[0m'
+				exit 2
+				;;
+		esac
+
+		## Create config file to pass in options
+		cat > config.yaml <<-EOF
+			samples: '${2}'
+			subsample_reads: "${3}"
+		EOF
+
+		## Copy appropriate snakemake, and cluster files
+		cp "${parent_path}/snakefiles/subsample.snakefile" "${PWD}/Snakefile"
+		cp "${parent_path}/config/cluster.yaml" "${PWD}/cluster.yaml"
+
+		# snakemake -s Snakefile --configfile config.yaml --latency-wait 60
+		nohup snakemake -j 999 -s Snakefile --configfile config.yaml --latency-wait 500 -d "${PWD}" --cluster-config cluster.yaml --cluster "sbatch -p {cluster.partition} -n {cluster.tasks} -N {cluster.nodes} --mem={cluster.mem} -t {cluster.time} --output {cluster.output}" &
+
+		echo -e '\e[32mrnaseq snakemake running in background via nohub -- check nohub.out for progress (tail -f nohup.out)\e[0m'
+
+		;;
+
+	'-h' | '--help' | ' ' | '')
+		general_usage
+		;;
+
+esac

@@ -1,0 +1,8 @@
+rule index:
+	input:
+		'sort/{sample}.bam'
+	output:
+		'sort/{sample}.bai'
+	threads: 8
+	shell:
+		'samtools index -@ {threads} -b {input} {output}'
