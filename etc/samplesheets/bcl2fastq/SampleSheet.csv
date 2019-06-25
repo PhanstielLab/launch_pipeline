@@ -1,0 +1,17 @@
+[Header],,
+Investigator,Eric Davis,
+Project,LURE,
+Date,6/25/2019,
+Workflow,GenerateFASTQ,
+,,
+[Reads],,
+151,,
+151,,
+,,
+[Settings],,
+Adapter,GATCGGAAGAGCACACGTCTGAACTCCAGTC,
+,,
+[Data],,
+Sample_ID,Sample_Name,Index
+1,TestRegion_Aiden,CAGATC
+2,TestRegion_Lure,GTCCGC

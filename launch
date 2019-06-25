@@ -67,7 +67,40 @@ case $1 in
 
 	bcl2fastq)
 		
-		echo 'option coming soon'
+		## Sample sheet error message
+		case $2 in
+
+			'-h' | '--help' | ' ' | '')
+				echo -e '\e[31mProvide a sample sheet for bcl2fastq\e[0m'
+				exit 2
+				;;
+		esac
+
+		## Copy sample sheet to current directory
+		rsync -az --ignore-errors "${2}" "${PWD}/$(basename ${2})" #suppress error if file already exists in directory		
+		
+		## Load module
+		module load bcl2fastq2
+
+		## Submit SLURM job
+		sbatch <<-CONVERT
+			#!/bin/bash
+			#SBATCH -J bcl2fastq
+			#SBATCH -N 1
+			#SBATCH -n 1
+			#SBATCH -t 1440
+			#SBATCH --mem=16g
+			#SBATCH -o bcl2fastq.log.out
+			#SBATCH -e bcl2fastq.log.err
+
+			echo "Making FastQ directory..."
+			mkdir FastQ
+			echo "Running bcl2fastq2..."
+			bcl2fastq -o FastQ/
+
+		CONVERT
+
+		echo 'Done!'
 		;;
 
 	juicer)
