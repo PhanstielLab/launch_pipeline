@@ -15,12 +15,12 @@ mergeList <- function(dat, mergeby, same){
 
 
 ## Load data
-dat <- fread("etc/samples.txt")
+dat <- fread("etc/samplesheets/samples.txt")
 mergeby <- "Bio_Rep"
 
 mergeList(dat, "Bio_Rep", c("Target"))
 
-dat <- fread("etc/test.txt")
+dat <- fread("etc/samplesheets/test.txt")
 mergeby <- "rep"
 
 mergeList(dat, "rep", c("time", "condition", "cell"))
