@@ -1,0 +1,49 @@
+
+## Location of Sample-sheet and read paths
+samples: 'samples.txt' #this value will be replaced when launching the script
+
+## Genome-specific reference parameters
+ref:
+  '/nas02/apps/bbmap-37.90/bbmap/resources/adapters.fa'
+
+gtf:
+  '/proj/seq/data/HG19_UCSC/Annotation/Genes/genes.gtf'
+
+bwa_index:
+  '/proj/seq/data/HG19_UCSC/Sequence/BWAIndex/genome.fa'
+
+## Rule path on cluster
+rule_path:
+  '/proj/phanstiel_lab/software/launch_pipeline/rules/'
+
+## Rule-specific parameters
+params:
+  trim:
+    ktrim:
+      'r'
+    k:
+      '23'
+    hdist:
+      '1'
+    minlen:
+      '50'
+  align:
+    path:
+      '/proj/seq/data/HG19_UCSC/Sequence/BBMapIndex'
+    maxindel:
+      '100000'
+    intronlen:
+      '10'
+    ambig:
+      'random'
+    trd:
+      't'
+  count:
+    t:
+      'exon'
+    g:
+      'gene_id'
+    p:
+      '-p'
+    s:
+      '2'

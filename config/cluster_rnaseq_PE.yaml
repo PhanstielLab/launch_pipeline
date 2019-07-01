@@ -1,0 +1,51 @@
+__default__:
+  partition: general
+  tasks: 8
+  nodes: 1
+  mem: 16G
+  time: 02:00:00
+  output: slurm.out
+
+# __default__:
+#   partition: general
+#   tasks: 8
+#   nodes: 1
+#   mem: 16G
+#   time: 02:00:00
+#   output: slurm.out
+
+trim:
+  tasks: 1
+  nodes: 1
+  mem: 20G
+  time: 00:05:00
+ 
+align:
+  tasks: 8
+  nodes: 1
+  mem: 30G
+  time: 00:10:00
+
+sort:
+  tasks: 8
+  nodes: 1
+  mem: 10G
+  time: 00:10:00
+
+index:
+  tasks: 8
+  nodes: 1
+  mem: 10G
+  time: 00:10:00
+
+count:
+  tasks: 2
+  nodes: 1
+  mem: 10G
+  time: 00:10:00
+
+# trim_galore:
+#   tasks: 8
+#   nodes: 1
+#   mem: 16G
+#   time: 02:00:00
