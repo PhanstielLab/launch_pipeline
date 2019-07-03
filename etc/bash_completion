@@ -7,7 +7,7 @@ _launch_completions(){
 	# List pipeline options
 	if [ "${COMP_CWORD}" -lt "2" ]; then
 
-		COMPREPLY=($(compgen -W "rnaseq chipseq bcl2fastq juicer subsample" "${COMP_WORDS[1]}"))
+		COMPREPLY=($(compgen -W "rnaseq_PE chipseq_SE chipseq_PE bcl2fastq juicer subsample" "${COMP_WORDS[1]}"))
 
 	fi
 

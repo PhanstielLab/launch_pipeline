@@ -87,6 +87,28 @@ case $1 in
 		echo -e '\e[32mrnaseq snakemake running in background via nohub -- check nohub.out for progress (tail -f nohup.out)\e[0m'
 		;;
 
+	chipseq_PE)
+
+		## Copy appropriate snakemake, config, and cluster files
+		cp "${parent_path}/snakefiles/chipseq_PE.snakefile" "${PWD}/Snakefile"
+		cp "${parent_path}/config/config_chipseq_PE.yaml" "${PWD}/config.yaml"
+		cp "${parent_path}/config/cluster_chipseq_PE.yaml" "${PWD}/cluster.yaml"
+		rsync -az --ignore-errors "${2}" "${PWD}/$(basename ${2})" #suppress error if file already exists in directory
+
+		## Replace sample sheet in config file (come up with better/python parser to handle additional options)
+		sed -i 's|^\(\s*samples\s*:\s*\).*|\1'"${2}"'|' config.yaml
+
+		## Generate DAG
+		# snakemake --dag | dot -Tpdf > dag.pdf
+
+		## Launch Cluster Command
+		nohup snakemake -j 999 -s Snakefile --configfile config.yaml --latency-wait 500 -d "${PWD}" --cluster-config cluster.yaml --cluster "sbatch -p {cluster.partition} -n {cluster.tasks} -N {cluster.nodes} --mem={cluster.mem} -t {cluster.time} --output {cluster.output}" &
+		# snakemake -s Snakefile --configfile config.yaml --latency-wait 60
+
+		echo 'chipseq_PE snakemake running in background via nohub -- check nohub.out for progress (tail -f nohup.out)'
+
+		;;
+
 	bcl2fastq)
 		
 		## Sample sheet error message

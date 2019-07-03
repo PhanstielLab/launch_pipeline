@@ -1,0 +1,79 @@
+__default__:
+  partition: general
+  tasks: 8
+  nodes: 1
+  mem: 16G
+  time: 02:00:00
+  output: slurm.out
+
+trim_trimGalore_PE:
+  tasks: 1
+  nodes: 1
+  mem: 8G
+  time: 01:00:00
+ 
+align_bwa_PE:
+  tasks: 8
+  nodes: 1
+  mem: 8G
+  time: 05:00:00
+
+stats_samtools_PE:
+  tasks: 8
+  nodes: 1
+  mem: 8G
+  time: 01:00:00
+
+filter_picardtools_PE:
+  tasks: 8
+  nodes: 1
+  mem: 8G
+  time: 01:00:00
+
+index_samtools_PE:
+  tasks: 8
+  nodes: 1
+  mem: 8G
+  time: 01:00:00
+
+signal_bedgraphs_PEunmerged:
+  tasks: 8
+  nodes: 1
+  mem: 8G
+  time: 01:00:00
+
+peakcall_macs2_PEunmerged:
+  tasks: 8
+  nodes: 1
+  mem: 8G
+  time: 01:00:00
+
+FRiPpart1_samtools_PE:
+  tasks: 8
+  nodes: 1
+  mem: 8G
+  time: 01:00:00
+
+FRiPpart2_samtools_PE:
+  tasks: 1
+  nodes: 1
+  mem: 8G
+  time: 01:00:00
+
+FRiPpart3_samtools_PE:
+  tasks: 1
+  nodes: 1
+  mem: 8G
+  time: 01:00:00
+
+peakmerge_bedtools_PE:
+  tasks: 8
+  nodes: 1
+  mem: 8G
+  time: 01:00:00
+
+count_bedtools_PE:
+  tasks: 8
+  nodes: 1
+  mem: 8G
+  time: 01:00:00 
