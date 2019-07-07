@@ -195,7 +195,7 @@ case $1 in
 
 		## Copy appropriate snakemake, and cluster files
 		cp "${parent_path}/snakefiles/subsample.snakefile" "${PWD}/Snakefile"
-		cp "${parent_path}/config/cluster.yaml" "${PWD}/cluster.yaml"
+		cp "${parent_path}/config/cluster_subsample.yaml" "${PWD}/cluster.yaml"
 
 		# snakemake -s Snakefile --configfile config.yaml --latency-wait 60
 		nohup snakemake -j 999 -s Snakefile --configfile config.yaml --latency-wait 500 -d "${PWD}" --cluster-config cluster.yaml --cluster "sbatch -p {cluster.partition} -n {cluster.tasks} -N {cluster.nodes} --mem={cluster.mem} -t {cluster.time} --output {cluster.output}" &

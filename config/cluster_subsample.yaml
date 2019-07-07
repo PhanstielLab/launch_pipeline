@@ -1,0 +1,7 @@
+__default__:
+  partition: general
+  tasks: 8
+  nodes: 1
+  mem: 5G
+  time: 00:30:00
+  output: slurm.out

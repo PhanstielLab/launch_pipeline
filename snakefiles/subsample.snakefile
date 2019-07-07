@@ -19,21 +19,11 @@ samples = samples.set_index(basenames, drop=False)
 
 rule all:
 	input:
-		expand('subsampled/sub_{sample}.fastq.gz', sample=basenames)
-
-
-# rule gunzip:
-# 	input:
-# 		lambda wildcards: samples.loc[wildcards.sample][0]
-# 	output:
-# 		'gzipped/{sample}.fastq'
-# 	shell:
-# 		'gunzip {input} > {output}'
+		expand('subsampled/sub_{sample}.fastq.gz', sample=samples.index)
 
 rule subsample:
 	input:
 		lambda wildcards: samples.loc[wildcards.sample][0]
-		# 'gzipped/{sample}.fastq.gz'
 	output:
 		'subsampled/sub_{sample}.fastq'
 	params:
