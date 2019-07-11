@@ -37,8 +37,8 @@ for i in $samples;
 	fi
 
 	## Move and rename desired aligned and debug files to cluster with samplename_filename format
-	for filename in $scrspace/$i/aligned/*; do mv $filename "/pine/scr/n/e/nekramer/testexport/aligned/$i_$filename"; done
-	for filename in $scrspace/$i/debug/*; do mv $filename "/pine/scr/n/e/nekramer/testexport/debug/$i_$filename"; done
+	for filename in $scrspace/$i/aligned/*; do mv $filename "/pine/scr/n/e/nekramer/testexport/aligned/${i}_$(basename $filename)"; done
+	for filename in $scrspace/$i/debug/*; do mv $filename "/pine/scr/n/e/nekramer/testexport/debug/${i}_$(basename $filename)"; done
 
 	## CLEANUP FILES ##
 
