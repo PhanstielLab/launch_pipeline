@@ -58,7 +58,7 @@ for ind in samples.index:
 	os.chdir(scrspace+"/"+samplename)
 	#run juicer from within it
 
-	os.system("./juicer/scripts/juicer.sh "+samplesheet)
+	os.system("./juicer/scripts/juicer.sh "+samplesheet_path)
 
 
 	#go back to scratchspace
