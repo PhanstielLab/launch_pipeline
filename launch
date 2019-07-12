@@ -155,6 +155,46 @@ case $1 in
 
 		;;
 
+	merging)
+		
+		case $2 in
+
+			'-h' | '--help' | ' ' | '')
+				echo -e '\e[31mProvide a sample sheet for merging\e[0m'
+				exit 2
+				;;
+
+		esac
+
+		case $3 in
+
+			'--merge' | '-merge' | '-m' | '--mergeBy' | '-mergeBy')
+
+				## Load R module
+				module load r/3.6.0
+				
+				## Link merge script
+				ln -s "${parent_path}/scripts/merge.R" "${PWD}/merge.R"
+
+				## Launch merge script			
+				Rscript merge.R $2 ${@: 4}
+
+				## Unlink merge script
+				unlink merge.R
+				;;
+
+			'-h' | '--help' | ' ' | '')
+				
+				echo -e '\e[32mUsage: launch merging <samplesheet.txt> --merge Col1 Col2 Col3...\e[0m'
+				echo -e '\e[33mAvailable Columns: ' $(head -n 1 $2) '\e[0m'
+				exit 2
+				;;			
+
+		esac
+
+
+		;;
+
 	subsample)
 		
 		## Print help messages for additional options
