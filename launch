@@ -121,30 +121,17 @@ case $1 in
 		esac
 
 		## Copy sample sheet to current directory
-		rsync -az --ignore-errors "${2}" "${PWD}/$(basename ${2})" #suppress error if file already exists in directory		
+		rsync -az --ignore-errors "${2}" "${PWD}/SampleSheet.csv" #suppress error if file already exists in directory
+
+		## Link bcl2fastq wrapper
+		ln -s "${parent_path}/scripts/run_bcl2fastq.sh" "${PWD}/run_bcl2fastq.sh"
+
+		## Launch bcl2fastq wrapper
+		./run_bcl2fastq.sh
+
+		## Unlink juicer wrapper
+		unlink run_bcl2fastq.sh
 		
-		## Load module
-		module load bcl2fastq2
-
-		## Submit SLURM job
-		sbatch <<-CONVERT
-			#!/bin/bash
-			#SBATCH -J bcl2fastq
-			#SBATCH -N 1
-			#SBATCH -n 1
-			#SBATCH -t 1440
-			#SBATCH --mem=16g
-			#SBATCH -o bcl2fastq.log.out
-			#SBATCH -e bcl2fastq.log.err
-
-			echo "Making FastQ directory..."
-			mkdir FastQ
-			echo "Running bcl2fastq2..."
-			bcl2fastq -o FastQ/
-
-		CONVERT
-
-		echo 'Done!'
 		;;
 
 	juicer)
