@@ -19,7 +19,7 @@ samples = samples.set_index(basenames, drop=False)
 
 rule all:
 	input:
-		expand('subsampled/sub_{sample}.fastq.gz', sample=samples.index)
+		expand('subsampled/sub_{sample}.gz', sample=samples.index)
 
 rule subsample:
 	input:
@@ -36,6 +36,6 @@ rule gzip:
 	input:
 		'subsampled/sub_{sample}.fastq'
 	output:
-		'subsampled/sub_{sample}.fastq.gz'
+		'subsampled/sub_{sample}.gz'
 	shell:
 		'gzip {input}'

@@ -4,25 +4,23 @@ import argparse
 import getpass
 
 
-#path to samplesheet
-#samplesheet = "/pine/scr/n/e/nekramer/hic_20M_samples.txt"
-#samplesheet = "/pine/scr/n/e/nekramer/samples.txt"
 
 juicerDir="/proj/phanstiel_lab/software/juicer/juicer/SLURM/scripts/"
 #juicerDir="/pine/scr/n/e/nekramer/test_juicer/juicer/juicer/SLURM/scripts/"
 
 #allow for input of samplesheet
-parser = argparse.ArgumentParser(description="Put in path to samplesheet.")
-parser.add_argument("--samplesheet", action = "store", type = str, dest="samplesheet", help = "samplesheet path.", required = True)
+parser = argparse.ArgumentParser(description="Put in samplesheet.")
+parser.add_argument("--samplesheet", action = "store", type = str, dest="samplesheet", help = "samplesheet.", required = True)
 args = parser.parse_args()
 samplesheet = args.samplesheet
+samplsheet_path = os.path.realpath(samplesheet)
 
 #get username information to put jobs in scr space
 username = getpass.getuser()
 scrspace = "/pine/scr/"+username[0]+"/"+username[1]+"/"+username
 
 #convert samplesheet.txt into pandas dataframe
-samples = pd.read_csv(samplesheet, sep='\t')
+samples = pd.read_csv(samplesheet_path, sep='\t')
 
 #go through each sample
 for ind in samples.index:
@@ -60,7 +58,7 @@ for ind in samples.index:
 	os.chdir(scrspace+"/"+samplename)
 	#run juicer from within it
 
-	os.system("./juicer/scripts/juicer.sh "+samplesheet)
+	os.system("./juicer/scripts/juicer.sh "+samplesheet_path)
 
 
 	#go back to scratchspace
