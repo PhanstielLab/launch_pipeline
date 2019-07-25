@@ -6,8 +6,13 @@
 
 samplesheet=$1
 ## outputs sample list
+<<<<<<< HEAD
 samples=($(python /proj/phanstiel_lab/software/launch_pipeline/scripts/sample_names.py --samplesheet $samplesheet | tr -d '[],'))
 #samples=($(python /proj/phanstiel_lab/software/launch_pipeline/scripts/sample_names.py --samplesheet $samplesheet | tr -d '[],'))
+=======
+#samples=($(python /pine/scr/n/e/nekramer/sample_names.py --samplesheet $samplesheet | tr -d '[],'))
+samples=($(python /proj/phanstiel_lab/software/launch_pipeline/scripts/sample_names.py --samplesheet $samplesheet | tr -d '[],'))
+>>>>>>> master
 username=$USER
 scrspace="/pine/scr/${username:0:1}/${username:1:1}/$username"
 

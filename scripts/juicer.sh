@@ -1252,7 +1252,7 @@ jid=`sbatch <<- FINAL | egrep -o -e "\b[0-9]+$"
     #SBATCH -t 1200
     #SBATCH -d $dependfinish
 
-    /proj/phanstiel_lab/software/launch_pipeline/file_cleanup.sh $1
+    /proj/phanstiel_lab/software/launch_pipeline/scripts/file_cleanup.sh $1
 FINAL`   
 
 

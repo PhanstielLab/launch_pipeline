@@ -13,7 +13,7 @@ parser = argparse.ArgumentParser(description="Put in samplesheet.")
 parser.add_argument("--samplesheet", action = "store", type = str, dest="samplesheet", help = "samplesheet.", required = True)
 args = parser.parse_args()
 samplesheet = args.samplesheet
-samplsheet_path = os.path.realpath(samplesheet)
+samplesheet_path = os.path.realpath(samplesheet)
 
 #get username information to put jobs in scr space
 username = getpass.getuser()
