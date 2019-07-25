@@ -5,8 +5,8 @@ import getpass
 
 
 
-juicerDir="/proj/phanstiel_lab/software/juicer/juicer/SLURM/scripts/"
-#juicerDir="/pine/scr/n/e/nekramer/test_juicer/juicer/juicer/SLURM/scripts/"
+#juicerDir="/proj/phanstiel_lab/software/juicer/juicer/SLURM/scripts/"
+juicerDir="/pine/scr/n/e/nekramer/test_juicer/juicer/juicer/SLURM/scripts/"
 
 #allow for input of samplesheet
 parser = argparse.ArgumentParser(description="Put in samplesheet.")
