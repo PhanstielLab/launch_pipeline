@@ -24,7 +24,7 @@ createMergeList <- function(sampleSheet, mergeBy){
   ## Create a data frame of sample names that belong to each mergeName
   mergeList <- t(as.data.frame(mergeSamples))
   mergeList <- cbind(rownames(mergeList), mergeList)
-  colnames(mergeList) <- c("MergeName", sapply(1:(ncol(mergeList)-1), function(x) paste0("Sample_", x)))
+  colnames(mergeList) <- c("MergeName", paste0("Sample_", 1:(ncol(mergeList)-1)))
   
   return(mergeList)
 }
@@ -35,11 +35,12 @@ options(width=system("tput cols", intern=TRUE))
 ## Parse command line input
 args <- commandArgs(trailingOnly = T)
 sampleSheet <- args[1]
-mergeBy <- args[-1]
+output <- args[2]
+mergeBy <- args[-c(1, 2)]
 
 ## Check that the sampleSheet is a valid file
 if(!file.exists(sampleSheet)) stop(paste0(sampleSheet, " file does not exist"))
 
 ## Create mergeList; print result to the console; write results to "mergeList.txt"
 mergeList <- createMergeList(sampleSheet, mergeBy); print(mergeList, quote = F)
-write.table(mergeList, file = "mergeList.txt", sep = "\t", quote = F)
+write.table(mergeList, file = output, sep = "\t", quote = F, row.names = F)
