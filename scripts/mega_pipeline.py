@@ -6,8 +6,7 @@ from namer import namer
 import tempfile as temp
 
 
-#juicerDir="/proj/phanstiel_lab/software/launch_pipeline/scripts/juicer"
-juicerDir="/nas/longleaf/home/ksmetz/testingJuicerPipe/juicer/scripts"
+megaDir="/proj/phanstiel_lab/software/juicer/scripts/mega.sh"
 
 #INPUTS
 #command line inputs
@@ -15,7 +14,7 @@ parser = argparse.ArgumentParser(description="Put in samplesheet.")
 parser.add_argument("--samplesheet", action = "store", type = str, dest="samplesheet", help = "samplesheet.", required = True)
 parser.add_argument("--output", action = "store", type = str, dest="output", help = "path to final output directory.", default = None, required = False)
 parser.add_argument("--merge", action = "store", type = str, dest="merge", help = "parameters to merge.", default=None, required = False)
-parser.add_argument("--juicerOptions", action = "store", type = str, dest = "juicerOptions", help = "additional options to pass to juicer command.", default = "", required = False)
+parser.add_argument("--megaOptions", action = "store", type = str, dest = "megaOptions", help = "additional options to pass to mega.sh command.", default = "", required = False)
 
 args = parser.parse_args()
 
@@ -23,7 +22,7 @@ args = parser.parse_args()
 samplesheet = args.samplesheet
 finalDir = args.output
 merge = args.merge
-juicerOptions = args.juicerOptions
+megaOptions = args.megaOptions
 
 #find samplesheet
 samplesheet_path = os.path.realpath(samplesheet)
@@ -31,16 +30,17 @@ samplesheet_path = os.path.realpath(samplesheet)
 #convert samplesheet.txt into pandas dataframe
 samples = pd.read_csv(samplesheet_path, sep='\t')
 
-#add empty "JuicerOutputDir" column to populate during script
-samples["JuicerOutputDir"] = [""] * len(samples)
-
 #assume standard samplesheet unless required columns not present
 standardSamplesheet = True
-requiredColumns = pd.Series(['sample', 'Project', 'Cell_Type', 'Genotype', 'Condition', 'Time',
-       'Bio_Rep', 'Tech_Rep', 'Seq_Rep', 'Tag', 'Read1', 'Read2'])
+requiredColumns = pd.Series(['sample', 'JuicerOutputDir'])
+standardColumns = pd.Series(['sample', 'Project', 'Cell_Type', 'Genotype', 'Condition', 'Time',
+       'Bio_Rep', 'Tech_Rep', 'Seq_Rep', 'Tag', 'Read1', 'Read2', 'JuicerOutputDir'])
 
 #if standard samplesheet, build default directory structure
-if requiredColumns.isin(samples.columns).all(): 
+if ~requiredColumns.isin(samples.columns).all():
+	raise ValueError('Samplesheet requires a "JuicerOutputDir" column, listing the juicer directories for each sample.')
+
+if standardColumns.isin(samples.columns).all(): 
 
 	#fail if more than one project listed
 	if len(list(set(samples["Project"]))) > 1: 
@@ -48,10 +48,7 @@ if requiredColumns.isin(samples.columns).all():
 
 	#set project, default output directory 
 	project = list(set(samples["Project"]))[0]
-	finalDir = "/proj/phanstiel_lab/Data/processed/" + project + "/hic/"
-
-	#make combined name for sample sheet, merge sheet
-	combinedName = namer(samples, ['Project', 'Cell_Type', 'Genotype', 'Condition', 'Time'],['Tag'],['Bio_Rep', 'Tech_Rep', 'Seq_Rep']) + "_"
+	finalDir = "/proj/phanstiel_lab/Data/processed/" + project + "/hic/" + namer(samples, ['Project', 'Cell_Type', 'Genotype', 'Condition', 'Time'],['Tag'],['Bio_Rep', 'Tech_Rep', 'Seq_Rep'])
 else:
 
 	#if non-standard, no project name and required path provided by --output
@@ -60,20 +57,18 @@ else:
 	project = ""
 	if finalDir == None:
 		raise ValueError('Please provide a path to output directory when using a non-standard samplesheet.')
-	combinedName = ""
-
 
 #get username information to put jobs in scr space
 username = getpass.getuser()
 scrspace = "/pine/scr/"+username[0]+"/"+username[1]+"/"+username
 
 #make temp directory in scr space for running the code
-scratchDir = temp.mkdtemp(prefix='hic-' + project, dir=scrspace)
+scratchDir = temp.mkdtemp(prefix='hicMegaMap-' + project, dir=scrspace)
 
 #MERGE
 #set default merge for standard samplesheets
 if standardSamplesheet == True and merge == None:
-	merge = 'Project,Cell_Type,Genotype,Condition,Time,Bio_Rep,Tech_Rep,Tag'
+	merge = 'Project,Cell_Type,Genotype,Condition,Time,Tag'
 
 #create merged sample list
 if merge is not None:	
@@ -83,8 +78,7 @@ if merge is not None:
 			raise ValueError('Columns listed for merging do not exist in samplesheet provided.')
 
 	#launch the merging R script and read in the output as a pandas dataframe 
-	#os.system("Rscript /proj/phanstiel_lab/software/launch_pipeline/scripts/merge.R " + samplesheet_path + " " + scratchDir + "/mergeTable.txt " + " ".join(mergeEntries))
-	os.system("Rscript /nas/longleaf/home/ksmetz/testingJuicerPipe/scripts/merge.R " + samplesheet_path + " " + scratchDir + "/mergeTable.txt " + " ".join(mergeEntries))
+	os.system("Rscript /proj/phanstiel_lab/software/launch_pipeline/scripts/merge.R " + samplesheet_path + " " + scratchDir + "/mergeTable.txt " + " ".join(mergeEntries))
 	mergedSamples = pd.read_csv(scratchDir + "/mergeTable.txt", sep='\t')
 else:
 	#if non-standard sheet and no merge option listed, make a fake mergedSample list with each sample on its own row
@@ -110,73 +104,50 @@ for mergeGroupIdx in mergedSamples.index:
 	else:
 		mergeName = mergedSamples.iloc[mergeGroupIdx][0]
 	
-	#add FINAL juicer directory to new "JuicerOutputDir" column in samplesheet, for all samples in this merge group
-	samples.loc[fullSampleList.isin(mergeSampleList), "JuicerOutputDir"] = finalDir+"/"+mergeName
-
-	#make juicer directory in scratch space for merge group
-	os.mkdir(scratchDir+"/"+mergeName)
+	#make mega directory for merge group
+	os.mkdir(scratchDir+"/"+mergeName+"_megaMap")
 
 	#within that directory, make it's own fastq directory
-	os.mkdir(scratchDir+"/"+mergeName+"/fastq")
+	os.mkdir(scratchDir+"/"+mergeName+"_megaMap/fastq")
 
 	#write subset samplesheet to merge group directory, for juicer.sh input (cleanup)
-	mergeDataframe.to_csv(scratchDir + "/" + mergeName + "/" + mergeName + "_samplesheet.txt", sep="\t", index=False)
+	mergeDataframe.to_csv(scratchDir + "/" + mergeName + "_megaMap/" + mergeName + "_MegaMapSamplesheet.txt", sep="\t", index=False)
+
+	#subset for unique juicer directories to get list of directories to be linked together
+	directoryList = mergeDataframe[]
 
 	#for each sample in that merge set
 	for sampleIdx in mergeDataframe.index:
-		samplename = mergeDataframe["sample"][sampleIdx]
+		samplename = mergeDataframe["JuicerOutputDir"][sampleIdx]
 
 		#get paths to reads for fastqs
 		read1_source = mergeDataframe["Read1"][sampleIdx]
 		read2_source = mergeDataframe["Read2"][sampleIdx]
-
-		#check if they have the right format
-		read1_filename = os.path.basename(read1_source)
-		read2_filename = os.path.basename(read2_source)
-
-		#replace 'fq' with 'fastq'
-		for wrong in ['fq', 'FQ', 'FASTQ']:
-			read1_filename = read1_filename.replace(wrong, 'fastq')
-			read2_filename = read2_filename.replace(wrong, 'fastq')
-
-		#add 'R1' and 'R2' to respective reads if not there
-		if read1_filename.find('_R1') == -1:
-			read1_filename = ('_R1.fastq').join(read1_filename.split('.fastq'))
-		if read2_filename.find('_R2') == -1:
-			read2_filename = ('_R2.fastq').join(read2_filename.split('.fastq'))
 		
 		#designate destination and name for links
-		read1_dest = scratchDir+"/"+mergeName+"/fastq/"+read1_filename
-		read2_dest = scratchDir+"/"+mergeName+"/fastq/"+read2_filename
+		read1_dest = scratchDir+"/"+mergeName+"_megaMap/fastq/"+os.path.basename(read1_source)
+		read2_dest = scratchDir+"/"+mergeName+"_megaMap/fastq/"+os.path.basename(read2_source)
 
 		#create links to fastqs
 		os.symlink(read1_source, read1_dest)
 		os.symlink(read2_source, read2_dest)
 
 	#make juicer directory
-	os.mkdir(scratchDir+"/"+mergeName+"/juicer")
+	os.mkdir(scratchDir+"/"+mergeName+"_megaMap/juicer")
 
 	#link juicer software files
-	os.symlink(juicerDir, scratchDir+"/"+mergeName+"/juicer/scripts")
+	os.symlink(juicerDir, scratchDir+"/"+mergeName+"_megaMap/juicer/scripts")
 
 	#RUN JUICER
 	#go into sample directory
-	os.chdir(scratchDir+"/"+mergeName)
+	os.chdir(scratchDir+"/"+mergeName+"_megaMap")
 
 	#run juicer from within it
-	outputDir = finalDir+"/"+mergeName
-	os.system("./juicer/scripts/juicer.sh " + scratchDir + "/" + mergeName + "/" + mergeName + "_samplesheet.txt " + outputDir + " " + juicerOptions)
+	os.system("./juicer/scripts/juicer.sh " + scratchDir + "/" + mergeName + "_megaMap/" + mergeName + "_samplesheet.txt " + finalDir + " " + juicerOptions)
 
 	#go back to scratchspace
 	os.chdir(scratchDir)
 
-#overwrite the original samplesheet + merge files with the edited samplesheet + merged files
-samples.to_csv(scratchDir + "/" + combinedName + "samplesheet.txt", sep="\t", index=False)
-mergedSamples.to_csv(scratchDir + "/" + combinedName + "mergeTable.txt", sep="\t", index=False)
-
-
-
-
-
-
+#overwrite the original merge file with the renamed merged file
+mergedSamples.to_csv(scratchDir + "/mergeTable.txt", sep="\t", index=False)
 
