@@ -156,6 +156,8 @@ shortreadend=0
 # description, default empty
 about=""
 nofrag=0
+# assume not running from pipeline (Phanstiel Lab edit)
+pipeline=0
 
 ## Read arguments                                                     
 usageHelp="Usage: ${0##*/} [-g genomeID] [-d topDir] [-q queue] [-l long queue] [-s site]\n                 [-a about] [-R end] [-S stage] [-p chrom.sizes path]\n                 [-y restriction site file] [-z reference genome file]\n                 [-C chunk size] [-D Juicer scripts directory]\n                 [-Q queue time limit] [-L long queue time limit] [-b ligation] [-t threads]\n                 [-r] [-h] [-x]"
@@ -177,6 +179,7 @@ queueTimeHelp="* [queue time limit]: time limit for queue, i.e. -W 12:00 is 12 h
 longQueueTimeHelp="* [long queue time limit]: time limit for long queue, i.e. -W 168:00 is one week\n  (default ${long_queue_time})"
 ligationHelp="* [ligation junction]: use this string when counting ligation junctions"
 threadsHelp="* [threads]: number of threads when running BWA alignment"
+pipelineHelp="* -P: use when running as part of the Phanstiel Lab juicer_pipeline.py script; toggles cleanup job"
 excludeHelp="* -x: exclude fragment-delimited maps from hic file creation"
 helpHelp="* -h: print this help and exit"
 
@@ -200,12 +203,13 @@ printHelpAndExit() {
 	echo -e "$longQueueTimeHelp"
 	echo -e "$ligationHelp"
 	echo -e "$threadsHelp"
+	echo -e "$pipelineHelp"
 	echo "$excludeHelp"
 	echo "$helpHelp"
 	exit "$1"
 }
 
-while getopts "d:g:R:a:hrq:s:p:l:y:z:S:C:D:Q:L:b:t:x" opt; do
+while getopts "d:g:R:a:hrq:s:p:l:y:z:S:C:D:Q:L:b:t:x:P" opt; do
 	case $opt in
 	g) genomeID=$OPTARG ;;
 	h) printHelpAndExit 0;;
@@ -227,6 +231,7 @@ while getopts "d:g:R:a:hrq:s:p:l:y:z:S:C:D:Q:L:b:t:x" opt; do
 	x) nofrag=1 ;;
 	b) ligation=$OPTARG ;;
 	t) threads=$OPTARG ;;
+	P) pipeline=1 ;;
 	[?]) printHelpAndExit 1;;
 	esac
 done
@@ -1246,16 +1251,19 @@ jid=`sbatch <<- FINCLN1 | egrep -o -e "\b[0-9]+$"
 FINCLN1`
 dependfinish="${dependarrows}:$jid"
 
-jid=`sbatch <<- FINAL | egrep -o -e "\b[0-9]+$"
-	#!/bin/bash
-	#SBATCH -p $queue
-	#SBATCH -t 1200
-	#SBATCH --mem-per-cpu=2G
-	#SBATCH -o $debugdir/cleanup-%j.out
-	#SBATCH -e $debugdir/cleanup-%j.err
-	#SBATCH -d $dependfinish
-	/nas/longleaf/home/ksmetz/testingJuicerPipe/scripts/file_cleanup_v2.sh $1 $2 ${topDir}
-FINAL`   
+if [ $pipeline -eq 1 ]
+then
+	jid=`sbatch <<- FINAL | egrep -o -e "\b[0-9]+$"
+		#!/bin/bash
+		#SBATCH -p $queue
+		#SBATCH -t 1200
+		#SBATCH --mem-per-cpu=2G
+		#SBATCH -o $debugdir/cleanup-%j.out
+		#SBATCH -e $debugdir/cleanup-%j.err
+		#SBATCH -d $dependfinish
+		/nas/longleaf/home/ksmetz/testingJuicerPipe/scripts/file_cleanup_v2.sh $1 $2 ${topDir}
+	FINAL`
+fi   
 
 
 

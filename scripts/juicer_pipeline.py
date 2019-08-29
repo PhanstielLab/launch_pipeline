@@ -29,7 +29,9 @@ juicerOptions = args.juicerOptions
 samplesheet_path = os.path.realpath(samplesheet)
 
 #convert samplesheet.txt into pandas dataframe
-samples = pd.read_csv(samplesheet_path, sep='\t')
+samples = pd.read_csv(samplesheet_path,  sep='\t', nrows=1) # Just take the first row to extract the columns' names
+col_str_dic = {column:str for column in list(samples)} 		# Make sure you're reading everything as a string!!!
+samples = pd.read_csv(samplesheet_path, sep='\t', dtype=col_str_dic)
 
 #add empty "JuicerOutputDir" column to populate during script
 samples["JuicerOutputDir"] = [""] * len(samples)
@@ -139,11 +141,17 @@ for mergeGroupIdx in mergedSamples.index:
 			read1_filename = read1_filename.replace(wrong, 'fastq')
 			read2_filename = read2_filename.replace(wrong, 'fastq')
 
-		#add 'R1' and 'R2' to respective reads if not there
+		#add 'R1' and 'R2' to respective reads if not there; edit '_1.fastq' and '_2.fastq' to '_R1.fastq' and '_R2.fastq', specifically (most common issue)
 		if read1_filename.find('_R1') == -1:
-			read1_filename = ('_R1.fastq').join(read1_filename.split('.fastq'))
+			if read1_filename.find('_1.fastq') != -1:
+				read1_filename = read1_filename.replace('_1.fastq', '_R1.fastq')
+			else:
+				read1_filename = ('_R1.fastq').join(read1_filename.split('.fastq'))
 		if read2_filename.find('_R2') == -1:
-			read2_filename = ('_R2.fastq').join(read2_filename.split('.fastq'))
+			if read1_filename.find('_2.fastq') != -1:
+				read1_filename = read1_filename.replace('_2.fastq', '_R2.fastq')
+			else:
+				read2_filename = ('_R2.fastq').join(read2_filename.split('.fastq'))
 		
 		#designate destination and name for links
 		read1_dest = scratchDir+"/"+mergeName+"/fastq/"+read1_filename
@@ -165,7 +173,7 @@ for mergeGroupIdx in mergedSamples.index:
 
 	#run juicer from within it
 	outputDir = finalDir+"/"+mergeName
-	os.system("./juicer/scripts/juicer.sh " + scratchDir + "/" + mergeName + "/" + mergeName + "_samplesheet.txt " + outputDir + " " + juicerOptions)
+	os.system("./juicer/scripts/juicer.sh -P " + scratchDir + "/" + mergeName + "/" + mergeName + "_samplesheet.txt " + outputDir + " " + juicerOptions)
 
 	#go back to scratchspace
 	os.chdir(scratchDir)
