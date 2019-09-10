@@ -3,7 +3,7 @@
 ## Function to create a merge list from a sample sheet ####
 createMergeList <- function(sampleSheet, mergeBy){
   ## Read in sampleSheet
-  sampleSheet <- read.table(file = sampleSheet, sep="\t", header=T, colClasses="character")
+  sampleSheet <- read.table(file = sampleSheet, sep="\t", header=T, colClasses="character", fill=TRUE)
   
   ## Check to make sure all columns are in the sampleSheet
   if(!all(mergeBy %in% colnames(sampleSheet))) stop("Column names must be in the sample sheet.")

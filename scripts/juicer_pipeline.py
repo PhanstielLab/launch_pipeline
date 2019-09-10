@@ -6,8 +6,8 @@ from namer import namer
 import tempfile as temp
 
 
-#juicerDir="/proj/phanstiel_lab/software/launch_pipeline/scripts/juicer"
-juicerDir="/nas/longleaf/home/ksmetz/testingJuicerPipe/juicer/scripts"
+juicerDir="/proj/phanstiel_lab/software/juicer/scripts/"
+#juicerDir="/nas/longleaf/home/ksmetz/testingJuicerPipe/juicer/scripts"
 
 #INPUTS
 #command line inputs
@@ -85,9 +85,9 @@ if merge is not None:
 			raise ValueError('Columns listed for merging do not exist in samplesheet provided.')
 
 	#launch the merging R script and read in the output as a pandas dataframe 
-	#os.system("Rscript /proj/phanstiel_lab/software/launch_pipeline/scripts/merge.R " + samplesheet_path + " " + scratchDir + "/mergeTable.txt " + " ".join(mergeEntries))
-	os.system("Rscript /nas/longleaf/home/ksmetz/testingJuicerPipe/scripts/merge.R " + samplesheet_path + " " + scratchDir + "/mergeTable.txt " + " ".join(mergeEntries))
-	mergedSamples = pd.read_csv(scratchDir + "/mergeTable.txt", sep='\t')
+	os.system("Rscript /proj/phanstiel_lab/software/launch_pipeline/scripts/merge.R " + samplesheet_path + " " + scratchDir + "/" + combinedName + "mergeTable.txt " + " ".join(mergeEntries))
+	#os.system("Rscript /nas/longleaf/home/ksmetz/testingJuicerPipe/scripts/merge.R " + samplesheet_path + " " + scratchDir + "/" + combinedName + "mergeTable.txt " + " ".join(mergeEntries))
+	mergedSamples = pd.read_csv(scratchDir + "/" + combinedName + "mergeTable.txt", sep='\t')
 else:
 	#if non-standard sheet and no merge option listed, make a fake mergedSample list with each sample on its own row
 	mergedSamples = pd.DataFrame({'MergeName':samples["sample"], 'Sample_1':samples["sample"]})
@@ -121,7 +121,7 @@ for mergeGroupIdx in mergedSamples.index:
 	#within that directory, make it's own fastq directory
 	os.mkdir(scratchDir+"/"+mergeName+"/fastq")
 
-	#write subset samplesheet to merge group directory, for juicer.sh input (cleanup)
+	#write subset samplesheet to merge group directory
 	mergeDataframe.to_csv(scratchDir + "/" + mergeName + "/" + mergeName + "_samplesheet.txt", sep="\t", index=False)
 
 	#for each sample in that merge set
@@ -148,8 +148,8 @@ for mergeGroupIdx in mergedSamples.index:
 			else:
 				read1_filename = ('_R1.fastq').join(read1_filename.split('.fastq'))
 		if read2_filename.find('_R2') == -1:
-			if read1_filename.find('_2.fastq') != -1:
-				read1_filename = read1_filename.replace('_2.fastq', '_R2.fastq')
+			if read2_filename.find('_2.fastq') != -1:
+				read2_filename = read2_filename.replace('_2.fastq', '_R2.fastq')
 			else:
 				read2_filename = ('_R2.fastq').join(read2_filename.split('.fastq'))
 		
@@ -173,14 +173,15 @@ for mergeGroupIdx in mergedSamples.index:
 
 	#run juicer from within it
 	outputDir = finalDir+"/"+mergeName
-	os.system("./juicer/scripts/juicer.sh -P " + scratchDir + "/" + mergeName + "/" + mergeName + "_samplesheet.txt " + outputDir + " " + juicerOptions)
+	os.system("./juicer/scripts/juicer.sh -P " + outputDir + " " + juicerOptions)
 
 	#go back to scratchspace
 	os.chdir(scratchDir)
 
-#overwrite the original samplesheet + merge files with the edited samplesheet + merged files
-samples.to_csv(scratchDir + "/" + combinedName + "samplesheet.txt", sep="\t", index=False)
-mergedSamples.to_csv(scratchDir + "/" + combinedName + "mergeTable.txt", sep="\t", index=False)
+	#overwrite the original samplesheet + merge files with the edited samplesheet + merged files
+	samples.to_csv(scratchDir + "/" + combinedName + "samplesheet.txt", sep="\t", index=False)
+	mergedSamples.to_csv(scratchDir + "/" + combinedName + "mergeTable.txt", sep="\t", index=False)
+
 
 
 
