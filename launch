@@ -136,23 +136,28 @@ case $1 in
 
 	juicer)
 		
-		case $2 in
-
-			'-h' | '--help' | ' ' | '')
-				echo -e '\e[31mProvide a fastq file list to submit to juicer (ls /full/path/to/*.fastq > fastqs.txt)\e[0m'
-				exit 2
-				;;
-		esac
-		
 		## Link juicer wrapper
-		ln -s "${parent_path}/scripts/run_juicer.sh" "${PWD}/run_juicer.sh"
+		ln -s "${parent_path}/scripts/juicer_pipeline.py" "${PWD}/juicer_pipeline.py"
 
 		## Launch juicer wrapper
-		./run_juicer.sh $2
+		./juicer_pipeline.py ${@:2}
 
 		## Unlink juicer wrapper
-		unlink run_juicer.sh
+		unlink juicer_pipeline.py
+		
+		;;
 
+	mega)
+		
+		## Link mega wrapper
+		ln -s "${parent_path}/scripts/mega_pipeline.py" "${PWD}/mega_pipeline.py"
+
+		## Launch mega wrapper
+		./mega_pipeline.py ${@:2}
+
+		## Unlink mega wrapper
+		unlink mega_pipeline.py
+		
 		;;
 
 	merging)
