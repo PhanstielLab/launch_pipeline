@@ -10,6 +10,7 @@ parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
 
 ## Load global modules
 module load python/3.6.6
+module load r/3.3.1
 
 # Select pipeline
 case $1 in 
@@ -140,7 +141,7 @@ case $1 in
 		ln -s "${parent_path}/scripts/juicer_pipeline.py" "${PWD}/juicer_pipeline.py"
 
 		## Launch juicer wrapper
-		./juicer_pipeline.py ${@:2}
+		python3 ./juicer_pipeline.py ${@:2}
 
 		## Unlink juicer wrapper
 		unlink juicer_pipeline.py
@@ -153,7 +154,7 @@ case $1 in
 		ln -s "${parent_path}/scripts/mega_pipeline.py" "${PWD}/mega_pipeline.py"
 
 		## Launch mega wrapper
-		./mega_pipeline.py ${@:2}
+		python3 ./mega_pipeline.py ${@:2}
 
 		## Unlink mega wrapper
 		unlink mega_pipeline.py
