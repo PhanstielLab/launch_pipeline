@@ -42,5 +42,5 @@ mergeBy <- args[-c(1, 2)]
 if(!file.exists(sampleSheet)) stop(paste0(sampleSheet, " file does not exist"))
 
 ## Create mergeList; print result to the console; write results to "mergeList.txt"
-mergeList <- createMergeList(sampleSheet, mergeBy); print(mergeList, quote = F)
+mergeList <- createMergeList(sampleSheet, mergeBy)#; print(mergeList, quote = F)
 write.table(mergeList, file = output, sep = "\t", quote = F, row.names = F)

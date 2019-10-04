@@ -137,15 +137,44 @@ case $1 in
 
 	juicer)
 		
-		## Link juicer wrapper
-		ln -s "${parent_path}/scripts/juicer_pipeline.py" "${PWD}/juicer_pipeline.py"
+		## Sample sheet error message
+		case $2 in
 
-		## Launch juicer wrapper
-		python3 ./juicer_pipeline.py ${@:2}
+			## Help message
+			'-h' | '--help' | ' ' | '')
+				echo -e '\e[31mSelect between "prep" (to make juicer directories and split fastqs) and "run" (to launch juicer processing jobs).\e[0m'
+				exit 2
+				;;
 
-		## Unlink juicer wrapper
-		unlink juicer_pipeline.py
-		
+			## If running prep...
+			'prep')
+
+				## 	Link juicer_pipeline_prep wrapper
+				ln -s "${parent_path}/scripts/juicer_pipeline_prep.py" "${PWD}/juicer_pipeline_prep.py"
+
+				## Launch juicer_pipeline_prep wrapper
+				python3 ./juicer_pipeline_prep.py ${@:3}
+
+				## Unlink juicer_pipeline_prep wrapper
+				unlink juicer_pipeline_prep.py
+
+				;;
+
+			## If running run...
+			'run')
+
+				## Link juicer_pipeline_run wrapper
+				ln -s "${parent_path}/scripts/juicer_pipeline_run.py" "${PWD}/juicer_pipeline_run.py"
+
+				## Launch juicer_pipeline_run wrapper
+				python3 ./juicer_pipeline_run.py ${@:3}
+
+				## Unlink juicer_pipeline_run wrapper
+				unlink juicer_pipeline_run.py
+
+				;;
+		esac
+
 		;;
 
 	mega)

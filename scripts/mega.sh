@@ -616,7 +616,7 @@ then
 		#SBATCH -e $logdir/cleanup-%j.err
 		#SBATCH -J "CLEANUP_${groupname}"
 		${dependfinish}
-		/nas/longleaf/home/ksmetz/testingJuicerPipe/scripts/file_cleanup_mega.sh ${pipeline}
+		/proj/phanstiel_lab/software/launch_pipeline/scripts/file_cleanup_mega.sh ${pipeline}
 	CLEANUP`
 fi
 echo "Depend for Cleanup: $dependfinish"
