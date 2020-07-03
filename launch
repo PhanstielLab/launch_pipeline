@@ -30,8 +30,18 @@ case $1 in
 		# Move existing tsv's into the backup directory
 		mv /proj/phanstiel_lab/software/RNApipe/config/*.tsv /proj/phanstiel_lab/software/RNApipe/config/backup/
 
+		## Link googleAPIquickstart.py and JSON files
+		cp "${parent_path}/scripts/googleSync/googleAPIquickstart.py" "${PWD}/googleAPIquickstart.py"
+		cp "${parent_path}/scripts/googleSync/credentials.json" "${PWD}/credentials.json"
+		cp "${parent_path}/scripts/googleSync/token.json" "${PWD}/token.json"
+
 		## Launch googleAPIquickstart.py, which calls the Sheets API to pull the info from Google Drive. Write the results to a new file.
-		python ${parent_path}/scripts/googleSync/googleAPIquickstart.py > $fileName
+		python ./googleAPIquickstart.py > $fileName
+
+		## Unlink googleAPIquickstart.py 
+		rm ./googleAPIquickstart.py
+		rm ./credentials.json
+		rm ./token.json
 
 		;;
 
