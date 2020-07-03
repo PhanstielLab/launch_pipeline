@@ -15,6 +15,32 @@ module load r/3.3.1
 # Select pipeline
 case $1 in 
 
+	googleSync)
+		
+		## Load pipeline-specific modules
+		module load python/3.6.6
+
+		## Create and activate virtual environment with requirements
+		python -m virtualenv env && source env/bin/activate && pip3 install google-api-python-client oauth2client
+
+		## Build name for today's SequencingData sheet
+		today=`date +%Y-%m-%d`
+		fileName="/proj/phanstiel_lab/software/RNApipe/config/SequencingData_${today}.tsv"
+
+		# Move existing tsv's into the backup directory
+		mv /proj/phanstiel_lab/software/RNApipe/config/*.tsv /proj/phanstiel_lab/software/RNApipe/config/backup/
+
+		## Link googleAPIquickstart.py 
+		ln -s "${parent_path}/scripts/googleAPIquickstart.py" "${PWD}/googleAPIquickstart.py"
+
+		## Launch googleAPIquickstart.py, which calls the Sheets API to pull the info from Google Drive. Write the results to a new file.
+		python ./googleAPIquickstart.py > $fileName
+
+		## Unlink googleAPIquickstart.py 
+		unlink run_bcl2fastq.sh
+
+		;;
+
 	rnaseq)
 		
 		## Load pipeline-specific modules
