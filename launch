@@ -21,7 +21,7 @@ case $1 in
 		module load python/3.6.6
 
 		## Create and activate virtual environment with requirements
-		python -m virtualenv env && source env/bin/activate && pip3 install google-api-python-client oauth2client
+		python -m virtualenv googleEnv && source googleEnv/bin/activate && pip3 install google-api-python-client oauth2client
 
 		## Build name for today's SequencingData sheet
 		today=`date +%Y-%m-%d`
@@ -43,6 +43,9 @@ case $1 in
 		rm ./credentials.json
 		rm ./token.json
 
+		## Remove
+		rm -r ./googleEnv 
+		
 		;;
 
 	rnaseq)
