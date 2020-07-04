@@ -46,7 +46,7 @@ case $1 in
 		cp "${parent_path}/scripts/googleSync/token.json" "${PWD}/token.json"
 
 		## Launch googleAPIquickstart.py, which calls the Sheets API to pull the info from Google Drive. Write the results to a new file.
-		python ./googleAPIquickstart.py > $fileName
+		python ./googleAPIquickstart.py $2 > $fileName
 
 		## Unlink googleAPIquickstart.py 
 		rm ./googleAPIquickstart.py
@@ -64,7 +64,7 @@ case $1 in
 		module load python/2.7.12
 		
 		## Link juicer_pipeline_run wrapper
-		ln -s "/proj/phanstiel_lab/software/RNApipe/RNApipe.py" "${PWD}/juicer_pipeline_run.py"
+		ln -s "/proj/phanstiel_lab/software/RNApipe/RNApipe.py" "${PWD}/RNApipe.py"
 
 		## Launch juicer_pipeline_run wrapper
 		python ./RNApipe.py ${@:2}
