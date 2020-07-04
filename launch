@@ -16,6 +16,16 @@ module load r/3.3.1
 case $1 in 
 
 	googleSync)
+
+		## Print help messages for additional options
+		case $2 in
+
+			'-h' | '--help' | ' ' | '')
+				echo -e '\e[31mProvide a data type to upload (rna, atac, chip). Must match tab name in google sheet.\e[0m'
+				exit 2
+				;;
+
+		esac
 		
 		## Load pipeline-specific modules
 		module load python/3.6.6
@@ -25,10 +35,10 @@ case $1 in
 
 		## Build name for today's SequencingData sheet
 		today=`date +%Y-%m-%d`
-		fileName="/proj/phanstiel_lab/software/RNApipe/config/SequencingData_${today}.tsv"
+		fileName="/proj/phanstiel_lab/software/RNApipe/config/SequencingData_${today}_${2}.tsv"
 
 		# Move existing tsv's into the backup directory
-		mv /proj/phanstiel_lab/software/RNApipe/config/*.tsv /proj/phanstiel_lab/software/RNApipe/config/backup/
+		mv /proj/phanstiel_lab/software/RNApipe/config/*${2}.tsv /proj/phanstiel_lab/software/RNApipe/config/backup/
 
 		## Link googleAPIquickstart.py and JSON files
 		cp "${parent_path}/scripts/googleSync/googleAPIquickstart.py" "${PWD}/googleAPIquickstart.py"
@@ -45,7 +55,23 @@ case $1 in
 
 		## Remove
 		rm -r ./googleEnv 
+
+		;;
+
+	RNApipe)
+
+		## Load pipeline-specific modules
+		module load python/2.7.12
 		
+		## Link juicer_pipeline_run wrapper
+		ln -s "/proj/phanstiel_lab/software/RNApipe/RNApipe.py" "${PWD}/juicer_pipeline_run.py"
+
+		## Launch juicer_pipeline_run wrapper
+		python ./RNApipe.py ${@:2}
+
+		## Unlink juicer_pipeline_run wrapper
+		unlink RNApipe.py
+
 		;;
 
 	rnaseq)
