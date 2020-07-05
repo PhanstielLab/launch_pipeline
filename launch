@@ -74,6 +74,38 @@ case $1 in
 
 		;;
 
+	ChIPpipe)
+
+		## Load pipeline-specific modules
+		module load python/2.7.12
+		
+		## Link juicer_pipeline_run wrapper
+		ln -s "/proj/phanstiel_lab/software/RNApipe/ChIPpipe.py" "${PWD}/ChIPpipe.py"
+
+		## Launch juicer_pipeline_run wrapper
+		python ./ChIPpipe.py ${@:2}
+
+		## Unlink juicer_pipeline_run wrapper
+		unlink ChIPpipe.py
+
+		;;
+
+	ATACpipe)
+
+		## Load pipeline-specific modules
+		module load python/2.7.12
+		
+		## Link juicer_pipeline_run wrapper
+		ln -s "/proj/phanstiel_lab/software/RNApipe/ATACpipe.py" "${PWD}/ATACpipe.py"
+
+		## Launch juicer_pipeline_run wrapper
+		python ./ATACpipe.py ${@:2}
+
+		## Unlink juicer_pipeline_run wrapper
+		unlink ATACpipe.py
+
+		;;
+
 	rnaseq)
 		
 		## Load pipeline-specific modules
