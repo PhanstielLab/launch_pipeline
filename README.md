@@ -12,9 +12,9 @@ The majority of the pipelines are written using the Snakemake framework, and lau
 To setup the pipeline launcher, run the following commands:
 
 ```{bash eval=F}
-ln -s /proj/phanstiel_lab/software/launch_pipeline/etc/bash_completion $HOME/.config/bash_completion
+ln -s /proj/phanstiel_lab/Software/launch_pipeline/etc/bash_completion $HOME/.config/bash_completion
 
-printf "# Load phanstiel modulefiles\nmodule use /proj/phanstiel_lab/modulefiles\n" >> $HOME/.bashrc
+printf "# Load phanstiel modulefiles\nmodule use /proj/phanstiel_lab/Software/modulefiles\n" >> $HOME/.bashrc
 ```
 
 These commands will add the bash completion functionality to the launch command and make Phanstiel lab-specific module files available for use. For these features to work, first `exit` from the terminal session and restart.
